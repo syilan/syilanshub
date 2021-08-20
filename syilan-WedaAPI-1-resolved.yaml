@@ -1,0 +1,234 @@
+---
+openapi: 3.0.0
+info:
+  title: Weda REST API
+  description: The ultimative Weda REST API
+  version: "1"
+servers:
+- url: https://virtserver.swaggerhub.com/syilan/WedaAPI/1
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: Sows
+- name: Locations
+paths:
+  /sows/:
+    get:
+      tags:
+      - Sows
+      summary: Returns a list of all sows
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SowItem'
+    post:
+      tags:
+      - Sows
+      summary: Creates a sow in the database
+      requestBody:
+        $ref: '#/components/requestBodies/Sow'
+      responses:
+        "201":
+          description: Created
+      security:
+      - all: []
+  /sows/{responder}:
+    get:
+      tags:
+      - Sows
+      summary: Returns a sow with the given responder
+      parameters:
+      - name: responder
+        in: path
+        description: Responder number of the sow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sow'
+          links:
+            Location:
+              operationId: getLocation
+              parameters:
+                locationid: $response.body#/locationid
+    put:
+      tags:
+      - Sows
+      summary: Updates a sow
+      parameters:
+      - name: responder
+        in: path
+        description: Responder number of the sow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/Sow'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sow'
+          links:
+            Location:
+              operationId: getLocation
+              parameters:
+                locationid: $response.body#/locationid
+    delete:
+      tags:
+      - Sows
+      summary: Deletes a sow
+      parameters:
+      - name: responder
+        in: path
+        description: Responder number of the sow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Ok
+  /locations/{locationid}:
+    get:
+      tags:
+      - Locations
+      operationId: getLocation
+      parameters:
+      - name: locationid
+        in: path
+        description: Unique location-guuid of the system
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+components:
+  schemas:
+    Sow:
+      type: object
+      properties:
+        uuid:
+          maxLength: 36
+          type: string
+          example: 1234567-1234567-123456-123456-123456
+        responder:
+          type: integer
+          format: int64
+          example: 123456789
+        name:
+          maxLength: 20
+          type: string
+          example: Elise
+        foodcredit:
+          type: integer
+          format: int64
+          example: 3220
+        locationid:
+          type: integer
+          format: int64
+          example: 21292177521
+    SowItem:
+      type: object
+      properties:
+        responder:
+          type: integer
+          format: int64
+        name:
+          maxLength: 20
+          type: string
+        self_uri:
+          type: string
+          format: uri
+      example:
+        uuid: 1234567-1234567-123456-123456-123456
+        name: Elise
+        self_uri: /sows/123456789
+    Location:
+      type: object
+      properties:
+        locationid:
+          type: integer
+          format: int64
+          example: 21292177521
+        name:
+          maxLength: 5
+          type: string
+          example: WB1
+  responses:
+    Sow:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Sow'
+      links:
+        Location:
+          operationId: getLocation
+          parameters:
+            locationid: $response.body#/locationid
+    Location:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Location'
+  parameters:
+    Responder:
+      name: responder
+      in: path
+      description: Responder number of the sow
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+    Locationid:
+      name: locationid
+      in: path
+      description: Unique location-guuid of the system
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+        format: int64
+  requestBodies:
+    Sow:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Sow'
+  securitySchemes:
+    all:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
